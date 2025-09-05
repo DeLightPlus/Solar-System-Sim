@@ -5,9 +5,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
 import Planet from "./components/Planet.jsx";
-import SettingsDrawer from "./components/SettingsDrawer.jsx"; // <-- import here
 import planets from "./utils/planets";
 
+// ----- Camera Controls -----
 function Controls({ autoRotate, minDistance, maxDistance }) {
   const { camera, gl } = useThree();
   const controls = useRef();
@@ -15,10 +15,10 @@ function Controls({ autoRotate, minDistance, maxDistance }) {
   useEffect(() => {
     controls.current = new OrbitControls(camera, gl.domElement);
     controls.current.enableDamping = true;
-    controls.current.minDistance = minDistance;
-    controls.current.maxDistance = maxDistance;
     controls.current.autoRotate = autoRotate;
     controls.current.autoRotateSpeed = 0.5;
+    controls.current.minDistance = minDistance;
+    controls.current.maxDistance = maxDistance;
 
     const animate = () => {
       controls.current.update();
@@ -32,28 +32,66 @@ function Controls({ autoRotate, minDistance, maxDistance }) {
   return null;
 }
 
-export default function SolarSystem() {
+// ----- Cube Map Background -----
+function CubeMapBackground() {
+  const { scene } = useThree();
+  // Load each face individually
+  const px = useLoader(THREE.TextureLoader, "/textures/cubeMap/px.png");
+  const nx = useLoader(THREE.TextureLoader, "/textures/cubeMap/nx.png");
+  const py = useLoader(THREE.TextureLoader, "/textures/cubeMap/py.png");
+  const ny = useLoader(THREE.TextureLoader, "/textures/cubeMap/ny.png");
+  const pz = useLoader(THREE.TextureLoader, "/textures/cubeMap/pz.png");
+  const nz = useLoader(THREE.TextureLoader, "/textures/cubeMap/nz.png");
+
+  React.useEffect(() => {
+    // Check if all textures are loaded
+    if (
+      px && nx && py && ny && pz && nz &&
+      px.image && nx.image && py.image && ny.image && pz.image && nz.image
+    ) {
+      const cubeTexture = new THREE.CubeTexture([
+        px.image, nx.image, py.image, ny.image, pz.image, nz.image
+      ]);
+      cubeTexture.needsUpdate = true;
+      scene.background = cubeTexture;
+      scene.environment = cubeTexture;
+    }
+  }, [scene, px, nx, py, ny, pz, nz]);
+
+  return null;
+}
+
+// ----- Main Component -----
+export default function SolarSystem({ settings }) {
   const sunTexture = useLoader(THREE.TextureLoader, "/textures/2k_sun.jpg");
   const [selectedPlanet, setSelectedPlanet] = useState(null);
-  const [settings, setSettings] = useState({
-    autoRotate: false,
-    minDistance: 20,
-    maxDistance: 200,
-    bloomIntensity: 1.5,
-  });
-  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const [hoveredPlanet, setHoveredPlanet] = useState(null);
+  const [hoveredPlanetPos, setHoveredPlanetPos] = useState({ x: 0, y: 0, visible: false });
+
+  const handlePointerMove = (event) => {
+    if (!hoveredPlanet) {
+      setHoveredPlanetPos((pos) => ({ ...pos, visible: false }));
+      return;
+    }
+    const { clientX, clientY } = event;
+    setHoveredPlanetPos({ x: clientX, y: clientY, visible: true });
+  };
 
   return (
     <>
       <Canvas
         camera={{ position: [0, 5, 100], fov: 35 }}
-        style={{ width: "100vw", height: "100vh" }}
+        style={{ position: "absolute", width: "100vw", height: "100vh" }}
         gl={{ antialias: true }}
-        onCreated={({ scene }) => {
-          scene.background = new THREE.Color(0x000000);
+        onPointerMissed={() => {
+          setSelectedPlanet(null);
+          setHoveredPlanet(null);
+          setHoveredPlanetPos((pos) => ({ ...pos, visible: false }));
         }}
-        onPointerMissed={() => setSelectedPlanet(null)}
+        onPointerMove={handlePointerMove}
       >
+        <CubeMapBackground />
         <ambientLight intensity={0.3} />
         <pointLight intensity={1.5} position={[0, 0, 0]} />
 
@@ -69,6 +107,11 @@ export default function SolarSystem() {
             key={planet.name}
             planet={planet}
             onClick={() => setSelectedPlanet(planet)}
+            onPointerOver={() => setHoveredPlanet(planet)}
+            onPointerOut={() => {
+              setHoveredPlanet(null);
+              setHoveredPlanetPos((pos) => ({ ...pos, visible: false }));
+            }}
           />
         ))}
 
@@ -78,7 +121,6 @@ export default function SolarSystem() {
           maxDistance={settings.maxDistance}
         />
 
-        {/* Bloom Effect */}
         <EffectComposer>
           <Bloom
             luminanceThreshold={0.2}
@@ -88,22 +130,22 @@ export default function SolarSystem() {
         </EffectComposer>
       </Canvas>
 
-      {/* Info panel */}
-      {selectedPlanet && (
+      {/* Hover Label */}
+      {hoveredPlanet && hoveredPlanetPos.visible && (
         <div
+          className="hover-label visible"
           style={{
-            position: "fixed",
-            bottom: 20,
-            left: 20,
-            backgroundColor: "rgba(0,0,0,0.75)",
-            color: "white",
-            padding: "1rem",
-            borderRadius: "8px",
-            maxWidth: 300,
-            zIndex: 100,
-            fontFamily: "sans-serif",
+            left: hoveredPlanetPos.x,
+            top: hoveredPlanetPos.y,
           }}
         >
+          {hoveredPlanet.name}
+        </div>
+      )}
+
+      {/* Info Panel */}
+      {selectedPlanet && (
+        <div className="info-panel visible" role="region" aria-label="Planet information">
           <h2>{selectedPlanet.name}</h2>
           <p>
             Radius: {selectedPlanet.radius} <br />
@@ -116,8 +158,7 @@ export default function SolarSystem() {
               <ul>
                 {selectedPlanet.moons.map((moon) => (
                   <li key={moon.name}>
-                    {moon.name} — Radius: {moon.radius}, Distance:{" "}
-                    {moon.distance}
+                    {moon.name} — Radius: {moon.radius}, Distance: {moon.distance}
                   </li>
                 ))}
               </ul>
@@ -139,36 +180,6 @@ export default function SolarSystem() {
           </button>
         </div>
       )}
-
-      {/* Settings Toggle Button */}
-      <button
-        onClick={() => setSettingsOpen(!settingsOpen)}
-        style={{
-          position: "fixed",
-          top: 20,
-          right: 20,
-          zIndex: 110,
-          padding: "10px 16px",
-          fontSize: "16px",
-          borderRadius: "8px",
-          border: "none",
-          backgroundColor: "#222",
-          color: "white",
-          cursor: "pointer",
-          userSelect: "none",
-        }}
-        aria-label="Toggle settings"
-      >
-        ⚙️ Settings
-      </button>
-
-      {/* Settings Drawer */}
-      <SettingsDrawer
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        settings={settings}
-        setSettings={setSettings}
-      />
     </>
   );
 }

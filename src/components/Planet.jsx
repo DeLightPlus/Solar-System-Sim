@@ -4,7 +4,7 @@ import { useLoader, useFrame } from "@react-three/fiber";
 import Moon from "./Moon";
 import OrbitTrail from "./OrbitTrail";
 
-export default function Planet({ planet, onClick }) {
+export default function Planet({ planet, onClick, onPointerOver, onPointerOut }) {
   const planetRef = useRef();
   const atmosphereRef = useRef();
   const ringRef = useRef();
@@ -67,6 +67,7 @@ export default function Planet({ planet, onClick }) {
       if (moonMesh) {
         moonMesh.position.x = Math.sin(moonAngle) * moon.distance;
         moonMesh.position.z = Math.cos(moonAngle) * moon.distance;
+        moonMesh.position.y = 0.1 * Math.sin(moonAngle * 2); // subtle vertical oscillation
       }
     });
   });
@@ -78,13 +79,20 @@ export default function Planet({ planet, onClick }) {
         e.stopPropagation();
         onClick();
       }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        if (typeof onPointerOver === "function") onPointerOver(e);
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        if (typeof onPointerOut === "function") onPointerOut(e);
+      }}
     >
       <OrbitTrail
         semiMajorAxis={planet.distance}
         eccentricity={planet.eccentricity || 0}
         color={planet.orbitColor}
         opacity={planet.orbitOpacity || 0.1}
-        e
       />
 
       <group ref={planetRef}>

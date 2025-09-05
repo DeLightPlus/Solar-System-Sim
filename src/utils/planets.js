@@ -46,7 +46,7 @@ const planets = [
   {
     name: "Mars",
     radius: 0.7,
-    distance: 25,
+    distance: 30,
     speed: 0.003,
     texture: "/textures/2k_mars.jpg",
     moons: [
@@ -63,7 +63,7 @@ const planets = [
   {
     name: "Jupiter",
     radius: 1.8,
-    distance: 35,
+    distance: 38,
     speed: 0.0025,
     texture: "/textures/2k_mars.jpg",
     moons: [],
@@ -77,7 +77,7 @@ const planets = [
   {
     name: "Saturn",
     radius: 2.5,
-    distance: 45,
+    distance: 48,
     speed: 0.002,
     texture: "/textures/2k_mars.jpg",
     moons: [],
@@ -96,7 +96,7 @@ const planets = [
   {
     name: "Uranus",
     radius: 2.1,
-    distance: 55,
+    distance: 58,
     speed: 0.0018,
     texture: "/textures/2k_venus_surface.jpg",
     moons: [],
@@ -110,7 +110,7 @@ const planets = [
   {
     name: "Neptune",
     radius: 2,
-    distance: 65,
+    distance: 68,
     speed: 0.0016,
     texture: "/textures/2k_earth_daymap.jpg",
     moons: [],

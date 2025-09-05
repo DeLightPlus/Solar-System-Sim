@@ -32,7 +32,12 @@ export default function OrbitTrail({
       new THREE.Float32BufferAttribute(positions, 3)
     );
 
-    ref.current.geometry = geometry;
+    if (ref.current) {
+      ref.current.geometry = geometry;
+
+      // Disable pointer events on the orbit trail by overriding raycast
+      ref.current.raycast = () => {};
+    }
   }, [semiMajorAxis, eccentricity]);
 
   return (
@@ -41,8 +46,8 @@ export default function OrbitTrail({
         color={color || 0xffffff}
         transparent
         opacity={opacity}
-        depthTest={true} 
-        depthWrite={false} 
+        depthTest={true}
+        depthWrite={false}
         toneMapped={false}
       />
     </lineLoop>
