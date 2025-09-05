@@ -1,154 +1,106 @@
-import { useEffect } from 'react'
+// SolarSystem.jsx
+import React from 'react'
+import { Canvas, useLoader, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { Pane } from 'tweakpane'
+import Planet from './components/Planet.jsx'
 
-export default function SolarSystem() {
-  useEffect(() => {
-    // === Scene ===
-    const scene = new THREE.Scene()
+function Controls() {
+  const { camera, gl } = useThree()
+  const controls = React.useRef()
 
-    // === Loaders ===
-    const textureLoader = new THREE.TextureLoader()
-    const cubeTextureLoader = new THREE.CubeTextureLoader().setPath('/textures/cubeMap/')
+  React.useEffect(() => {
+    controls.current = new OrbitControls(camera, gl.domElement)
+    controls.current.enableDamping = true
+    controls.current.minDistance = 20
+    controls.current.maxDistance = 200
 
-    // === Background ===
-    scene.background = cubeTextureLoader.load([
-      'px.png', 'nx.png',
-      'py.png', 'ny.png',
-      'pz.png', 'nz.png',
-    ])
-
-    // === Textures ===
-    const sunTexture = textureLoader.load('/textures/2k_sun.jpg')
-    const mercuryTexture = textureLoader.load('/textures/2k_mercury.jpg')
-    const venusTexture = textureLoader.load('/textures/2k_venus_surface.jpg')
-    const earthTexture = textureLoader.load('/textures/2k_earth_daymap.jpg')
-    const marsTexture = textureLoader.load('/textures/2k_mars.jpg')
-    const moonTexture = textureLoader.load('/textures/2k_moon.jpg')
-
-    sunTexture.colorSpace =
-    mercuryTexture.colorSpace =
-    venusTexture.colorSpace =
-    earthTexture.colorSpace =
-    marsTexture.colorSpace =
-    moonTexture.colorSpace = THREE.SRGBColorSpace
-
-    // === Materials ===
-    const createMaterial = (map) => new THREE.MeshStandardMaterial({ map })
-    const materials = {
-      mercury: createMaterial(mercuryTexture),
-      venus: createMaterial(venusTexture),
-      earth: createMaterial(earthTexture),
-      mars: createMaterial(marsTexture),
-      moon: createMaterial(moonTexture),
+    const animate = () => {
+      controls.current.update()
+      requestAnimationFrame(animate)
     }
+    animate()
 
-    // === Geometry ===
-    const sphereGeometry = new THREE.SphereGeometry(1, 32, 32)
-
-    // === Sun ===
-    const sun = new THREE.Mesh(sphereGeometry, new THREE.MeshBasicMaterial({ map: sunTexture }))
-    sun.scale.setScalar(5)
-    scene.add(sun)
-
-    // === Planets ===
-    const planets = [
-      {
-        name: 'Mercury', radius: 0.5, distance: 10, speed: 0.01, material: materials.mercury, moons: [],
-      },
-      {
-        name: 'Venus', radius: 0.8, distance: 15, speed: 0.007, material: materials.venus, moons: [],
-      },
-      {
-        name: 'Earth', radius: 1, distance: 20, speed: 0.005, material: materials.earth, moons: [
-          { name: 'Moon', radius: 0.3, distance: 3, speed: 0.015 },
-        ],
-      },
-      {
-        name: 'Mars', radius: 0.7, distance: 25, speed: 0.003, material: materials.mars, moons: [
-          { name: 'Phobos', radius: 0.1, distance: 2, speed: 0.02 },
-          { name: 'Deimos', radius: 0.2, distance: 3, speed: 0.015 },
-        ],
-      },
-    ]
-
-    const createPlanet = (p) => {
-      const mesh = new THREE.Mesh(sphereGeometry, p.material)
-      mesh.scale.setScalar(p.radius)
-      mesh.position.x = p.distance
-      return mesh
-    }
-
-    const createMoon = (moon) => {
-      const mesh = new THREE.Mesh(sphereGeometry, materials.moon)
-      mesh.scale.setScalar(moon.radius)
-      mesh.position.x = moon.distance
-      return mesh
-    }
-
-    const planetMeshes = planets.map((planet) => {
-      const mesh = createPlanet(planet)
-      scene.add(mesh)
-      planet.moons.forEach((moon) => {
-        const moonMesh = createMoon(moon)
-        mesh.add(moonMesh)
-      })
-      return mesh
-    })
-
-    // === Lights ===
-    scene.add(new THREE.AmbientLight(0xffffff, 0.3))
-    scene.add(new THREE.PointLight(0xffffff, 1000))
-
-    // === Camera & Renderer ===
-    const canvas = document.querySelector('canvas.threejs')
-    const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 400)
-    camera.position.set(0, 5, 100)
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
-    renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-    // === Controls ===
-    const controls = new OrbitControls(camera, canvas)
-    controls.enableDamping = true
-    controls.minDistance = 20
-    controls.maxDistance = 200
-
-    // === Resize ===
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight
-      camera.updateProjectionMatrix()
-      renderer.setSize(window.innerWidth, window.innerHeight)
-    })
-
-    // === Animate ===
-    const tick = () => {
-      planetMeshes.forEach((planet, i) => {
-        planet.rotation.y += planets[i].speed
-        planet.position.x = Math.sin(planet.rotation.y) * planets[i].distance
-        planet.position.z = Math.cos(planet.rotation.y) * planets[i].distance
-
-        planet.children.forEach((moon, mi) => {
-          moon.rotation.y += planets[i].moons[mi].speed
-          moon.position.x = Math.sin(moon.rotation.y) * planets[i].moons[mi].distance
-          moon.position.z = Math.cos(moon.rotation.y) * planets[i].moons[mi].distance
-        })
-      })
-
-      controls.update()
-      renderer.render(scene, camera)
-      requestAnimationFrame(tick)
-    }
-    tick()
-
-    // === Cleanup ===
-    return () => {
-      renderer.dispose()
-      scene.clear()
-    }
-  }, [])
+    return () => controls.current.dispose()
+  }, [camera, gl])
 
   return null
+}
+
+export default function SolarSystem() {
+  const sunTexture = useLoader(THREE.TextureLoader, '/textures/2k_sun.jpg')
+
+  const planets = [
+  {
+    name: 'Mercury',
+    radius: 0.5,
+    distance: 10,    // semi-major axis (a)
+    speed: 0.01,
+    texture: '/textures/2k_mercury.jpg',
+    moons: [],
+    eccentricity: 0.205,  // example real eccentricity
+    orbitColor: 0xffa500,
+  },
+  {
+    name: 'Venus',
+    radius: 0.8,
+    distance: 15,
+    speed: 0.007,
+    texture: '/textures/2k_venus_surface.jpg',
+    moons: [],
+    eccentricity: 0.007,
+    orbitColor: 0xffc0cb,
+  },
+  {
+    name: 'Earth',
+    radius: 1,
+    distance: 20,
+    speed: 0.005,
+    texture: '/textures/2k_earth_daymap.jpg',
+    moons: [{ name: 'Moon', radius: 0.3, distance: 3, speed: 0.015 }],
+    eccentricity: 0.017,
+    orbitColor: 0x3399ff,
+  },
+  {
+    name: 'Mars',
+    radius: 0.7,
+    distance: 25,
+    speed: 0.003,
+    texture: '/textures/2k_mars.jpg',
+    moons: [
+      { name: 'Phobos', radius: 0.1, distance: 2, speed: 0.02 },
+      { name: 'Deimos', radius: 0.2, distance: 3, speed: 0.015 },
+    ],
+    eccentricity: 0.093,
+    orbitColor: 0xff4500,
+  },
+]
+
+
+  return (
+    <Canvas
+      camera={{ position: [0, 5, 100], fov: 35 }}
+      style={{ width: '100vw', height: '100vh' }}
+      gl={{ antialias: true }}
+      onCreated={({ scene }) => {
+        scene.background = new THREE.Color(0x000000)
+      }}
+    >
+      <ambientLight intensity={0.3} />
+      <pointLight intensity={1.5} position={[0, 0, 0]} />
+
+      {/* Sun */}
+      <mesh>
+        <sphereGeometry args={[5, 32, 32]} />
+        <meshBasicMaterial map={sunTexture} />
+      </mesh>
+
+      {/* Planets */}
+      {planets.map((planet) => (
+        <Planet key={planet.name} planet={planet} />
+      ))}
+
+      <Controls />
+    </Canvas>
+  )
 }
