@@ -2,7 +2,12 @@
 import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
 
-export default function OrbitTrail({ semiMajorAxis, eccentricity, color }) {
+export default function OrbitTrail({
+  semiMajorAxis,
+  eccentricity,
+  color,
+  opacity = 0.2,
+}) {
   const ref = useRef();
 
   useEffect(() => {
@@ -31,8 +36,15 @@ export default function OrbitTrail({ semiMajorAxis, eccentricity, color }) {
   }, [semiMajorAxis, eccentricity]);
 
   return (
-    <lineLoop ref={ref}>
-      <lineBasicMaterial color={color || 0xffffff} linewidth={2} />
+    <lineLoop ref={ref} renderOrder={0}>
+      <lineBasicMaterial
+        color={color || 0xffffff}
+        transparent
+        opacity={opacity}
+        depthTest={true} 
+        depthWrite={false} 
+        toneMapped={false}
+      />
     </lineLoop>
   );
 }

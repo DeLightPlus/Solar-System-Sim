@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { Canvas, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+
 import Planet from "./components/Planet.jsx";
 import SettingsDrawer from "./components/SettingsDrawer.jsx"; // <-- import here
 import planets from "./utils/planets";
@@ -37,6 +39,7 @@ export default function SolarSystem() {
     autoRotate: false,
     minDistance: 20,
     maxDistance: 200,
+    bloomIntensity: 1.5,
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -74,6 +77,15 @@ export default function SolarSystem() {
           minDistance={settings.minDistance}
           maxDistance={settings.maxDistance}
         />
+
+        {/* Bloom Effect */}
+        <EffectComposer>
+          <Bloom
+            luminanceThreshold={0.2}
+            luminanceSmoothing={0.9}
+            intensity={settings.bloomIntensity}
+          />
+        </EffectComposer>
       </Canvas>
 
       {/* Info panel */}
@@ -104,7 +116,8 @@ export default function SolarSystem() {
               <ul>
                 {selectedPlanet.moons.map((moon) => (
                   <li key={moon.name}>
-                    {moon.name} — Radius: {moon.radius}, Distance: {moon.distance}
+                    {moon.name} — Radius: {moon.radius}, Distance:{" "}
+                    {moon.distance}
                   </li>
                 ))}
               </ul>

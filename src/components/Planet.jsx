@@ -72,29 +72,43 @@ export default function Planet({ planet, onClick }) {
   });
 
   return (
-    <group position={[0, 0, 0]} onClick={(e) => { e.stopPropagation(); onClick(); }}>
+    <group
+      position={[0, 0, 0]}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+    >
       <OrbitTrail
         semiMajorAxis={planet.distance}
         eccentricity={planet.eccentricity || 0}
         color={planet.orbitColor}
+        opacity={planet.orbitOpacity || 0.1}
+        e
       />
 
       <group ref={planetRef}>
         <mesh>
           <sphereGeometry args={[planet.radius, 32, 32]} />
-          <meshStandardMaterial map={texture} />
+          <meshStandardMaterial
+            map={texture}
+            toneMapped={false}
+            depthWrite={true}
+            transparent={false}
+          />
         </mesh>
 
-        <mesh scale={[1.2, 1.2, 1.2]} ref={atmosphereRef}>
+        <mesh scale={[1.2, 1.2, 1.2]} ref={atmosphereRef} renderOrder={0}>
           <sphereGeometry args={[planet.radius, 32, 32]} />
           <meshPhongMaterial
             color={planet.glowColor}
             emissive={planet.glowColor}
             emissiveIntensity={0.5}
             transparent
-            opacity={0.3}
+            opacity={0.003}
             side={THREE.DoubleSide}
             depthWrite={false}
+            depthTest={true}
             blending={THREE.AdditiveBlending}
           />
         </mesh>
