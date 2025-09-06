@@ -1,23 +1,11 @@
-// components/SettingsDrawer.jsx
 import React from "react";
+import "./SettingsDrawer.css"; 
 
 export default function SettingsDrawer({ open, onClose, settings, setSettings }) {
   if (!open) return null;
 
   return (
-    <div style={{
-      position: "fixed",
-      top: 0,
-      right: 0,
-      width: "300px",
-      height: "100%",
-      backgroundColor: "#111",
-      color: "#fff",
-      padding: "20px",
-      boxShadow: "0 0 10px rgba(0,0,0,0.5)",
-      zIndex: 120,
-      fontFamily: "sans-serif",
-    }}>
+    <div className="settings-drawer">
       <h2>Settings</h2>
 
       {/* Auto-Rotate Toggle */}
@@ -35,7 +23,7 @@ export default function SettingsDrawer({ open, onClose, settings, setSettings })
       </div>
 
       {/* Zoom Limits */}
-      <div style={{ marginTop: 20 }}>
+      <div>
         <label>Min Zoom: {settings.minDistance}</label>
         <input
           type="range"
@@ -50,7 +38,7 @@ export default function SettingsDrawer({ open, onClose, settings, setSettings })
           }
         />
 
-        <label style={{ display: "block", marginTop: 10 }}>
+        <label>
           Max Zoom: {settings.maxDistance}
         </label>
         <input
@@ -67,8 +55,8 @@ export default function SettingsDrawer({ open, onClose, settings, setSettings })
         />
       </div>
 
-      {/* 🌟 Bloom Intensity Slider */}
-      <div style={{ marginTop: 20 }}>
+      {/* Bloom Intensity */}
+      <div>
         <label>Bloom Intensity: {settings.bloomIntensity.toFixed(2)}</label>
         <input
           type="range"
@@ -85,20 +73,7 @@ export default function SettingsDrawer({ open, onClose, settings, setSettings })
         />
       </div>
 
-      <button
-        style={{
-          marginTop: 20,
-          padding: "8px 12px",
-          backgroundColor: "#333",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-        }}
-        onClick={onClose}
-      >
-        Close
-      </button>
+      <button onClick={onClose}>Close</button>
     </div>
   );
 }

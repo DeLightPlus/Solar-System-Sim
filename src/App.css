@@ -59,6 +59,20 @@ html, body, #root {
   opacity: 1;
 }
 
+.planet-card-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px;
+  display: flex;
+  overflow-x: auto;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  scrollbar-width: thin;
+}
+
+
 /* Info panel */
 .info-panel {
   position: fixed;

@@ -14,6 +14,8 @@ const planets = [
     glowColor: "orange",
     glowPulseColor: "#ffcc80",
     axialTilt: 0.01,
+     description: "Closest planet to the Sun, very hot during the day.",
+    color: "#b1a18e",
   },
   {
     name: "Venus",
@@ -28,6 +30,8 @@ const planets = [
     glowColor: "pink",
     glowPulseColor: "#ff99bb",
     axialTilt: 177.4,
+     description: "Very hot with thick clouds of toxic gases.",
+    color: "#e5c47a",
   },
   {
     name: "Earth",
@@ -42,6 +46,8 @@ const planets = [
     glowColor: "cyan",
     glowPulseColor: "#00ffff",
     axialTilt: 23.44,
+    description: "Our home planet, rich with life and water.",
+    color: "#2e73d2",
   },
   {
     name: "Mars",
@@ -59,6 +65,8 @@ const planets = [
     glowColor: "red",
     glowPulseColor: "#ff6666",
     axialTilt: 25.19,
+    description: "Our home planet, rich with life and water.",
+    color: "#ff6666",
   },
   {
     name: "Jupiter",
@@ -73,6 +81,8 @@ const planets = [
     glowColor: "orange",
     glowPulseColor: "#ffbb66",
     axialTilt: 3.13,
+    description: "Our home planet, rich with life and water.",
+    color: "#ff6666",
   },
   {
     name: "Saturn",
@@ -92,6 +102,8 @@ const planets = [
       outerRadius: 4,
       // texture: "/textures/2k_moon.png", // not used for now
     },
+    description: "Our home planet, rich with life and water.",
+    color: "#ff6666",
   },
   {
     name: "Uranus",
@@ -106,6 +118,8 @@ const planets = [
     glowColor: "lightblue",
     glowPulseColor: "#99ddff",
     axialTilt: 97.77,
+    description: "Our home planet, rich with life and water.",
+    color: "#ff6666",
   },
   {
     name: "Neptune",
@@ -120,6 +134,8 @@ const planets = [
     glowColor: "blue",
     glowPulseColor: "#6699ff",
     axialTilt: 28.32,
+    description: "Our home planet, rich with life and water.",
+    color: "#ff6666",
   },
 ];
 

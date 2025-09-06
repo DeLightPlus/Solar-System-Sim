@@ -1,0 +1,39 @@
+.planet-card {
+  background-color: #111;
+  color: white;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 4px;
+  margin: 4px;
+  width: 150px;
+  height: 180px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.planet-card:hover {
+  transform: scale(1.05);
+  background-color: #222;
+}
+
+.planet-card .planet-name {
+  font-weight: bold;
+
+  font-size: 16px;
+}
+.planet-card .planet-description {
+  font-size: 12px;
+  color: #ccc;
+  height: fit-content;
+  overflow: hidden;
+  font-style: italic;
+}
+
+.planet-image {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-bottom: 0px;
+}
